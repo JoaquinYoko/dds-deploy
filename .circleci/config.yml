@@ -1,6 +1,13 @@
 # This config was automatically generated from your source code
 # Stacks detected: deps:java:.
 version: 2.1
+orbs:
+  maven: circleci/maven@1.4.1
+executors:
+  java17:
+    docker:
+      - image: 'cimg/openjdk:17.0'
+
 jobs:
   test-java:
     docker:
@@ -22,6 +29,15 @@ jobs:
           key: cache-{{ checksum "/tmp/CIRCLECI_CACHE_KEY" }}
           paths:
             - ~/.m2/repository
+    say-hello:
+     docker:
+      - image: cimg/base:stable
+     steps:
+      - checkout
+      - run:
+          name: "Say hello"
+          command: "echo Hello, World!"
+
   deploy:
     # This is an example deploy job, not actually used by the workflow
     docker:
@@ -35,6 +51,15 @@ workflows:
   build-and-test:
     jobs:
       - test-java
+   say-hello-workflow:
+    jobs:
+      - say-hello
+maven_test:
+  jobs:
+    - maven/test:
+        command: '-X compile test'
+        executor: java17
+
     # - deploy:
     #     requires:
     #       - test-java
