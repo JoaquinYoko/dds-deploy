@@ -9,7 +9,7 @@ import javax.persistence.Id;
 @Table(name = "Libro")
 public class Libro {
 
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String nombre;
