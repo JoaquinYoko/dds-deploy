@@ -11,7 +11,7 @@
         
         <properties>
            <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver" />
-           <property name="hibernate.connection.url" value="jdbc:mysql://mysql-service:3306/libros" />
+           <property name="hibernate.connection.url" value="jdbc:mysql://mysql-service:3306/libros?createDatabaseIfNotExist=true" />
            <property name="hibernate.connection.username" value="yoko" />
            <property name="hibernate.connection.password" value="1234" />
           
