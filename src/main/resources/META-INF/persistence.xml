@@ -10,6 +10,7 @@
 
         
         <properties>
+           <property name="javax.persistence.schema-generation.database.action" value="update"/>
            <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver" />
            <property name="hibernate.connection.url" value="jdbc:mysql://mysql-service:3306/libros?createDatabaseIfNotExist=true" />
            <property name="hibernate.connection.username" value="yoko" />
