@@ -50,17 +50,39 @@ pipeline {
                     cd /home/yoko/k8s-appx/
                     minikube kubectl -- apply -f db-deployment.yaml
                     minikube kubectl -- apply -f app-deployment.yaml
-                    nohup minikube kubectl -- port-forward svc/appx-service 8080:8080 &
                     '''
                 }
             }
         }
 
+        stage('Esperar que inicien los pods') {
+            agent { label 'minikube' }  
+            steps {
+                script {
+                    def isRunning = false
+                    
+                    while (!isRunning) {
+                        def podStatuses = sh(script: "minikube kubectl -- get pods -o jsonpath='{.items[*].status.phase}'", returnStdout: true).trim().split()
+
+                        echo "Estados de los pods: ${podStatuses.join(', ')}"
+
+                        isRunning = podStatuses.every { it == 'Running' }
+
+                        if (!isRunning) {
+                            echo "Esperando a que todos los pods estén en estado 'Running'..."
+                            sleep 10 // Esperar 10 segundos antes de volver a verificar
+                        }
+                    }
+                    sh '''
+                    nohup minikube kubectl -- port-forward svc/appx-service 8080:8080 &
+                    '''
+                }
+            }
+        }
         stage('Test Deployment') {
             agent { label 'minikube' }  
             steps {
                 script {
-                    sleep 30
                     sh '''
                     minikube kubectl -- get pods
                     curl http://localhost:8080/libros
