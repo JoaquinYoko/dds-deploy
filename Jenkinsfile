@@ -83,6 +83,7 @@ pipeline {
             agent { label 'minikube' }  
             steps {
                 script {
+                    sleep 15
                     sh '''
                     minikube kubectl -- get pods
                     curl http://localhost:8080/libros
