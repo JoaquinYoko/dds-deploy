@@ -50,6 +50,7 @@ pipeline {
                     cd /home/yoko/k8s-appx/
                     minikube kubectl -- apply -f db-deployment.yaml
                     minikube kubectl -- apply -f app-deployment.yaml
+                    minikube kubectl -- port-forward svc/appx-service 8080:8080 &
                     '''
                 }
             }
@@ -62,7 +63,6 @@ pipeline {
                     sleep 60
                     sh '''
                     minikube kubectl -- get pods
-                    minikube kubectl -- port-forward svc/appx-service 8080:8080
                     curl http://localhost:8080/libros
                     '''
                 }
