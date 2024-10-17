@@ -62,6 +62,7 @@ pipeline {
                     sleep 60
                     sh '''
                     minikube kubectl -- get pods
+                    minikube kubectl -- port-forward svc/appx-service 8080:8080
                     curl http://localhost:8080/libros
                     '''
                 }
