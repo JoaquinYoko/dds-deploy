@@ -73,9 +73,9 @@ pipeline {
                             sleep 10 // Esperar 10 segundos antes de volver a verificar
                         }
                     }
-                    //sh '''
-                    //nohup minikube kubectl -- port-forward svc/appx-service 8080:8080 &
-                    //'''
+                    sh '''
+                    nohup minikube kubectl -- port-forward svc/appx-service 8080:8080 &
+                    '''
                 }
             }
         }
@@ -83,7 +83,7 @@ pipeline {
             agent { label 'minikube' }  
             steps {
                 script {
-                    sleep 15
+                    sleep 300
                     sh '''
                     minikube kubectl -- get pods
                     curl http://localhost:8080/libros
