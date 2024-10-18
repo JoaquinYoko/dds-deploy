@@ -62,9 +62,9 @@ pipeline {
                     def isRunning = false
                     
                     while (!isRunning) {
-                        def podStatuses = sh(script: "minikube kubectl -- get pods -o jsonpath='{.items[*].status.phase}'", returnStdout: true).trim().split()
+                         def podStatuses = sh(script: "minikube kubectl -- get pods --no-headers -o custom-columns=NAME:.metadata.name,STATUS:.status.phase", returnStdout: true).trim()
 
-                        echo "Estados de los pods: ${podStatuses.join(', ')}"
+                        echo "Estados de los pods:\n${podStatuses}"
 
                         isRunning = podStatuses.every { it == 'Running' }
 
@@ -74,8 +74,20 @@ pipeline {
                         }
                     }
                     sh '''
-                    nohup minikube kubectl -- port-forward svc/appx-service 8080:8080 &
+                    nohup minikube kubectl -- port-forward svc/appx-service 8080:8080 > /dev/null 2>&1 &
+                    echo $! > port_forward_pid.txt  # Guardar el PID para detenerlo más tarde si es necesario
                     '''
+                    def isPortForwarded = false
+                    while (!isPortForwarded) {
+                        def result = sh(script: "lsof -i :8080", returnStatus: true)
+                        if (result == 0) {
+                            echo "Port-forwarding exitoso en el puerto 8080"
+                            isPortForwarded = true
+                        } else {
+                            echo "Esperando a que el port-forwarding se establezca..."
+                            sleep 5 // Esperar 5 segundos antes de volver a verificar
+                        }
+                    }
                 }
             }
         }
@@ -83,7 +95,6 @@ pipeline {
             agent { label 'minikube' }  
             steps {
                 script {
-                    sleep 300
                     sh '''
                     minikube kubectl -- get pods
                     curl http://localhost:8080/libros
