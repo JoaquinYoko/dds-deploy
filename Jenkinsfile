@@ -62,15 +62,20 @@ pipeline {
                     def isRunning = false
                     
                     while (!isRunning) {
-                         def podStatuses = sh(script: "minikube kubectl -- get pods --no-headers -o custom-columns=NAME:.metadata.name,STATUS:.status.phase", returnStdout: true).trim()
+                        def podStatuses = sh(script: "minikube kubectl -- get pods --no-headers -o custom-columns=NAME:.metadata.name,STATUS:.status.phase", returnStdout: true).trim()
 
                         echo "Estados de los pods:\n${podStatuses}"
 
-                        isRunning = podStatuses.every { it == 'Running' }
+                        // Verificar si todos los pods están "Running"
+                        def allRunning = podStatuses.split('\n').every { line ->
+                            line.split()[1] == 'Running'
+                        }
 
-                        if (!isRunning) {
+                        if (allRunning) {
+                            isRunning = true
+                        } else {
                             echo "Esperando a que todos los pods estén en estado 'Running'..."
-                            sleep 10 // Esperar 10 segundos antes de volver a verificar
+                            sleep 10
                         }
                     }
                     sh '''
