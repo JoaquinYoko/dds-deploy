@@ -79,6 +79,7 @@ pipeline {
                         }
                     }
                     sh '''
+                    minikube kubectl -- get pods
                     nohup minikube kubectl -- port-forward svc/appx-service 8080:8080 > /dev/null 2>&1 &
                     echo $! > port_forward_pid.txt  # Guardar el PID para detenerlo más tarde si es necesario
                     '''
