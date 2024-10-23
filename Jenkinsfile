@@ -78,22 +78,6 @@ pipeline {
                             sleep 10
                         }
                     }
-                    sh '''
-                    minikube kubectl -- get pods
-                    nohup minikube kubectl -- port-forward svc/appx-service 8080:8080 > /dev/null 2>&1 &
-                    echo $! > port_forward_pid.txt  # Guardar el PID para detenerlo más tarde si es necesario
-                    '''
-                    def isPortForwarded = false
-                    while (!isPortForwarded) {
-                        def result = sh(script: "lsof -i :8080", returnStatus: true)
-                        if (result == 0) {
-                            echo "Port-forwarding exitoso en el puerto 8080"
-                            isPortForwarded = true
-                        } else {
-                            echo "Esperando a que el port-forwarding se establezca..."
-                            sleep 5 // Esperar 5 segundos antes de volver a verificar
-                        }
-                    }
                 }
             }
         }
@@ -103,7 +87,7 @@ pipeline {
                 script {
                     sh '''
                     minikube kubectl -- get pods
-                    curl http://localhost:8080/libros
+                    curl $(minikube service appx-service --url)/libros
                     '''
                 }
             }
