@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: appx-api
+  template:
+    metadata:
+      labels:
+        app: appx-api
+    spec:
+      containers:
+      - name: appx-container
+        image: jnegretey/dds-deploy:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_HOST
+          value: "mysql-service"
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_USER
+          value: "yoko"
+        - name: DB_PASSWORD
+          value: "1234"
+        - name: DB_NAME
+          value: "libros"
+        readinessProbe:
+          httpGet:
+            path: /libros
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 8
+        livenessProbe:
+          httpGet:
+            path: /libros
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 8
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: appx-service
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30001
+  selector:
+    app: appx-api
+
