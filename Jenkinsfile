@@ -88,6 +88,16 @@ pipeline {
                 script {
                     sh '''
                     minikube kubectl -- get pods
+                    while [[ $(minikube kubectl -- get pods --no-headers | awk '{print $2}' | grep -v '1/1' | wc -l) -ne 0 ]]; do
+                        echo "Esperando a que los pods estén 'Running' y 'Ready'..."
+                        sleep 10
+                    done
+        
+                    # Verificar que no hay pods en estado 'Pending', 'Failed' o que no están 'Running'
+                    while [[ $(minikube kubectl -- get pods --field-selector=status.phase!=Running --no-headers | wc -l) -ne 0 ]]; do
+                        echo "Esperando a que los pods estén en estado 'Running'..."
+                        sleep 10
+                    done
                     curl $(minikube service appx-service --url)/libros
                     '''
                 }
