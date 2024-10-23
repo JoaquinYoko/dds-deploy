@@ -47,7 +47,8 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    cd /home/yoko/k8s-appx/
+                    cd /home/yoko/dds-deploy/k8s-appx/
+                    git pull
                     minikube kubectl -- apply -f db-deployment.yaml
                     minikube kubectl -- apply -f app-deployment.yaml
                     '''
