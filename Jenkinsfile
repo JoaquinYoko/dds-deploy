@@ -60,34 +60,7 @@ pipeline {
             agent { label 'minikube' }  
             steps {
                 script {
-                    def isRunning = false
-                    
-                    while (!isRunning) {
-                        def podStatuses = sh(script: "minikube kubectl -- get pods --no-headers -o custom-columns=NAME:.metadata.name,STATUS:.status.phase", returnStdout: true).trim()
-
-                        echo "Estados de los pods:\n${podStatuses}"
-
-                        // Verificar si todos los pods están "Running"
-                        def allRunning = podStatuses.split('\n').every { line ->
-                            line.split()[1] == 'Running'
-                        }
-
-                        if (allRunning) {
-                            isRunning = true
-                        } else {
-                            echo "Esperando a que todos los pods estén en estado 'Running'..."
-                            sleep 10
-                        }
-                    }
-                }
-            }
-        }
-        stage('Test Deployment') {
-            agent { label 'minikube' }  
-            steps {
-                script {
                     sh '''
-                    minikube kubectl -- get pods
                     while [[ $(minikube kubectl -- get pods --no-headers | awk '{print $2}' | grep -v '1/1' | wc -l) -ne 0 ]]; do
                         echo "Esperando a que los pods estén 'Running' y 'Ready'..."
                         sleep 10
@@ -98,6 +71,19 @@ pipeline {
                         echo "Esperando a que los pods estén en estado 'Running'..."
                         sleep 10
                     done
+                    '''
+                }
+            }
+        }
+        stage('Test Deployment') {
+            agent { label 'minikube' }  
+            steps {
+                script {
+                    sh '''
+                    minikube kubectl -- get pods
+                    curl -X POST  $(minikube service appx-service --url)/libros \
+                     -H "Content-Type: application/json" \
+                     -d '{"nombre": "El bar del infierno", "autor": "Alejandro Dolina", "precio": 2000}'
                     curl $(minikube service appx-service --url)/libros
                     '''
                 }
