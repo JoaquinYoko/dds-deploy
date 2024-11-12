@@ -1,0 +1,10 @@
+---
+- name: Hacer backup de archivos de Joomla en Docker
+  hosts: all
+  become: true
+  tasks:
+    - name: Hacer backup de archivos de Joomla
+      command: >
+        docker cp 4434c828b1f1:/var/www/html /var/backups/joomla_{{ ansible_date_time.iso8601.split('T')[0] }}
+      args:
+        chdir: /var/backups

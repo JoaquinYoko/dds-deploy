@@ -1,0 +1,14 @@
+---
+- name: Escalado de la APPx-API
+  hosts: localhost
+  become: yes
+
+  vars:
+    app_image: "mdarganaraz/dds-deploy-appx"
+    replicas: 3  
+
+  tasks:
+    - name: Lanzar contenedores de APPx-API usando docker run
+      command: >
+        docker run -d --name appx-api-{{ item }} -p 808{{ item }}:8080 {{ app_image }}
+      loop: "{{ range(1, replicas + 1) | list }}"

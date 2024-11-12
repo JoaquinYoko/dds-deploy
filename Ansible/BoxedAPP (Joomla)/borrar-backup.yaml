@@ -1,0 +1,8 @@
+- name: Eliminar el directorio de backup desde la VM1
+  hosts: all
+  become: true 
+  tasks:
+    - name: Borrar el directorio de backup
+      file:
+        path: /var/backups/joomla_{{ ansible_date_time.iso8601.split('T')[0] }} 
+        state: absent  
